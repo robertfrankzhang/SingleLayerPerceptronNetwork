@@ -98,7 +98,7 @@ class PlayScene: SKScene {
                                 let pBar = s as! PatternsBar
                                 for p in pBar.patterns{
                                     if p.isToggled{
-                                        let point = TrainingPoint(position: touch.location(in: self), color: p.color, myScene: self)
+                                        let point = TrainingPoint(position: touch.location(in: self), pattern: p, myScene: self)
                                         self.addChild(point)
                                     }
                                 }

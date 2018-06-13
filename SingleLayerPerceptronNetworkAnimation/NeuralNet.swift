@@ -30,4 +30,6 @@ class NeuralNet{
         
         return (weightMatrix,biasVector)
     }
+    
+    
 }

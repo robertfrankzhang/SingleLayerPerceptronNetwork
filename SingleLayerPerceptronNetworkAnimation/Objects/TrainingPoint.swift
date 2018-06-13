@@ -14,18 +14,20 @@ class TrainingPoint:SKSpriteNode{
     
     var myScene:SKScene
     
+    var patternType:String
+    
     //2 Input Values
     var normX:CGFloat
     var normY:CGFloat
     
-    //7 Output Values
-    var outputVector = [0,0,0,0,0,0,0]
+    //The Output Values are stored in the Patterns Array in the PatternsBar Object
     
-    init(position:CGPoint,color:UIColor,myScene:SKScene){
+    init(position:CGPoint,pattern:Pattern,myScene:SKScene){
         self.myScene = myScene
+        self.patternType = pattern.name
         normX = position.x/myScene.frame.width
         normY  = position.y/myScene.frame.height
-        super.init(texture: SKTexture(imageNamed: "circle"), color: color, size: CGSize(width:10,height:10))
+        super.init(texture: SKTexture(imageNamed: "circle"), color: pattern.color, size: CGSize(width:10,height:10))
         self.position = position
         self.colorBlendFactor = 1
     }
