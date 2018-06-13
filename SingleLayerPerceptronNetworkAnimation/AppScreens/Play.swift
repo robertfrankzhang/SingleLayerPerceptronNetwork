@@ -11,7 +11,11 @@ import GameplayKit
 
 class PlayScene: SKScene {
     
+    var weights:[[CGFloat]] = []
+    var biases:[CGFloat] = []
+    
     override func didMove(to view: SKView) {
+        //Set Display Items
         self.backgroundColor = .white
         
         //Top Bar Items
@@ -49,6 +53,10 @@ class PlayScene: SKScene {
         let viewAlgoLabel = SKLabelNode(position: CGPoint(x:self.frame.width-10,y:(self.frame.width/8+40)/2), zPosition: 1, text: "Weights", fontColor: ThemeColor.darkPurple, fontName: "Antipasto Pro", fontSize: 30, verticalAlignmentMode: .center, horizontalAlignmentMode: .right)
         viewAlgoLabel.name = "toggle"
         self.addChild(viewAlgoLabel)
+        
+        //Prepare Default Weights and Biases
+        (weights,biases) = NeuralNet.setDefaultWeightsAndBiases(numInputs: 2, numOutputs: 7)
+        
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -85,14 +93,12 @@ class PlayScene: SKScene {
                         }
                     }
                     if sprite.name == "trainingSpace"{
-                        let point = SKSpriteNode(imageName: "circle", width: 10, height: 10, anchorPoint: CGPoint(x:0.5,y:0.5), position: touch.location(in: self), zPosition: 1, alpha: 1)
                         for s in self.children{
                             if s.name == "bar"{
                                 let pBar = s as! PatternsBar
                                 for p in pBar.patterns{
                                     if p.isToggled{
-                                        point.color = p.color
-                                        point.colorBlendFactor = 1
+                                        let point = TrainingPoint(position: touch.location(in: self), color: p.color, myScene: self)
                                         self.addChild(point)
                                     }
                                 }
