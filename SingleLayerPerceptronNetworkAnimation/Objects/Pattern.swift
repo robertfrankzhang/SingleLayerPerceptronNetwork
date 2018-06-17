@@ -16,8 +16,11 @@ class Pattern{
     var outputVector:[Int] = []
     var isToggled = false
     
-    init(color:UIColor,name:String) {
+    init(color:UIColor,name:String,outputVectorNumRows:Int) {
         self.color = color
         self.name = name
+        for _ in 0..<7{
+            outputVector.append(0)
+        }
     }
 }

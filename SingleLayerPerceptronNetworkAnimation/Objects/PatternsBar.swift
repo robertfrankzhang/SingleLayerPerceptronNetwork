@@ -25,7 +25,7 @@ class PatternsBar:SKSpriteNode{
         
         //Generate 8 Patterns
         for x in 1...8{
-            patterns.append(Pattern(color: generateColor(), name: "Pattern "+String(x)))
+            patterns.append(Pattern(color: generateColor(), name: "Pattern "+String(x),outputVectorNumRows:7))
         }
         
         //Generate pattern palette

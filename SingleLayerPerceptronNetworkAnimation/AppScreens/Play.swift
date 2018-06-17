@@ -14,6 +14,13 @@ class PlayScene: SKScene {
     var weights:[[CGFloat]] = []
     var biases:[CGFloat] = []
     
+    var trainingPoints:[TrainingPoint] = []
+    var placedPatterns:[String] = []
+    
+    var patternsBar:PatternsBar = PatternsBar()
+    
+    var numDecisionBoundaries = 1
+    
     override func didMove(to view: SKView) {
         //Set Display Items
         self.backgroundColor = .white
@@ -30,7 +37,7 @@ class PlayScene: SKScene {
         self.addChild(backButton)
         
         //Patterns Bar
-        let patternsBar = PatternsBar(myScene: self, position: CGPoint(x:self.frame.width/2,y:self.frame.height-(self.frame.width/8+40+self.frame.width/16)))
+        patternsBar = PatternsBar(myScene: self, position: CGPoint(x:self.frame.width/2,y:self.frame.height-(self.frame.width/8+40+self.frame.width/16)))
         self.addChild(patternsBar)
         
         //Draw Screen
@@ -92,19 +99,47 @@ class PlayScene: SKScene {
                             }
                         }
                     }
-                    if sprite.name == "trainingSpace"{
+                    if sprite.name == "reset"{
+                        placedPatterns = []
+                        for p in patternsBar.patterns{
+                            p.outputVector = [0,0,0,0,0,0,0]
+                        }
+                        trainingPoints = []
                         for s in self.children{
-                            if s.name == "bar"{
-                                let pBar = s as! PatternsBar
-                                for p in pBar.patterns{
-                                    if p.isToggled{
-                                        let point = TrainingPoint(position: touch.location(in: self), pattern: p, myScene: self)
-                                        self.addChild(point)
+                            if s.name == "point"{
+                                s.removeFromParent()
+                            }
+                        }
+                    }
+                    
+                    if sprite.name == "trainingSpace"{
+                        for p in patternsBar.patterns{
+                            if p.isToggled{
+                                let point = TrainingPoint(position: touch.location(in: self), pattern: p, myScene: self)
+                                point.name = "point"
+                                self.addChild(point)
+                                if let boundaryCountDelta = NeuralNet.addTrainingPoint(point:point,placedPatterns: placedPatterns,numDecisionBoundaries:numDecisionBoundaries,trainingPoints:trainingPoints,patternBar:patternsBar,weights:weights,biases:biases){
+                                    numDecisionBoundaries+=boundaryCountDelta
+                                    trainingPoints.append(point)
+                                    var hasBeenPlaced = false
+                                    for p in placedPatterns{//Check if p was in placed patterns
+                                        if p == point.name!{
+                                            hasBeenPlaced = true
+                                        }
                                     }
+                                    
+                                    if !hasBeenPlaced{//Add new pattern if pattern hasn't been placed before
+                                        for p in patternsBar.patterns{
+                                            if p.name == point.name{
+                                                placedPatterns.append(p.name)
+                                            }
+                                        }
+                                    }
+                                }else{
+                                    //Nonlinearizable
                                 }
                             }
                         }
-                        
                     }
                 }
                 
