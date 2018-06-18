@@ -13,6 +13,7 @@ class PlayScene: SKScene {
     
     var weights:[[CGFloat]] = []
     var biases:[CGFloat] = []
+    var e:[Int] = []
     
     var trainingPoints:[TrainingPoint] = []
     var placedPatterns:[String] = []
@@ -20,6 +21,12 @@ class PlayScene: SKScene {
     var patternsBar:PatternsBar = PatternsBar()
     
     var numDecisionBoundaries = 1
+    
+    var timer:Timer = Timer()
+    
+    var currentPointIndex = 0
+    var numEpochs = 0
+    var numTrainingCorrect = 0
     
     override func didMove(to view: SKView) {
         //Set Display Items
@@ -41,7 +48,7 @@ class PlayScene: SKScene {
         self.addChild(patternsBar)
         
         //Draw Screen
-        let targetBlank = SKSpriteNode(color: .white, width: self.frame.height, height: self.frame.height-invisibleTopBar.size.height-patternsBar.size.height-self.frame.width/8-40, anchorPoint: CGPoint(x:0,y:0), position: CGPoint(x:0,y:self.frame.width/8+40), zPosition: 0, alpha: 1)
+        let targetBlank = SKSpriteNode(color: .white, width: self.frame.height, height: self.frame.height-invisibleTopBar.size.height-patternsBar.size.height-self.frame.width/8-40, anchorPoint: CGPoint(x:0,y:0), position: CGPoint(x:0,y:self.frame.width/8+40), zPosition: -2, alpha: 1)
         targetBlank.name = "trainingSpace"
         self.addChild(targetBlank)
         
@@ -65,6 +72,72 @@ class PlayScene: SKScene {
         (weights,biases) = NeuralNet.setDefaultWeightsAndBiases(numInputs: 2, numOutputs: 7)
         
     }
+    
+    @objc func perceptronIterate(){
+        (weights,biases,e) = NeuralNet.perceptronIteration(testInput: [trainingPoints[currentPointIndex].normX,trainingPoints[currentPointIndex].normY], testClass: NeuralNet.patternTypeToPattern(patternType:trainingPoints[currentPointIndex].patternType,patterns: patternsBar.patterns), weights: weights, bias: biases)
+        print("iterated")
+        
+        for node in self.children{
+            if node.name  == "line"{
+                node.removeFromParent()
+            }
+        }
+        print(weights)
+        print(currentPointIndex)
+        for rowIndex in 0..<weights.count{
+            var yIntercept = CGPoint(x:0,y:-biases[rowIndex]/weights[rowIndex][1])
+            
+            var slope = -weights[rowIndex][0]/weights[rowIndex][1]
+            var endPoint = CGPoint(x:self.frame.width,y:self.frame.width*slope)
+            print(weights[rowIndex][0])
+            print(weights[rowIndex][1])
+            print(yIntercept)
+            print(slope)
+            print()
+            
+            var path = CGMutablePath()
+            path.move(to: yIntercept)
+            path.addLine(to: endPoint)
+            
+            let shape = SKShapeNode()
+            shape.path = path
+            shape.name = "line"
+            shape.strokeColor = ThemeColor.darkPurple
+            shape.lineWidth = 4
+            shape.zPosition = -1
+            self.addChild(shape)
+        }
+        
+        if numEpochs >= 0{
+            var done = true
+            for i in e{
+                if i != 0{
+                    done = false
+                }
+            }
+            if done{
+                numTrainingCorrect += 1
+            }
+            
+            if numTrainingCorrect == trainingPoints.count{
+                timer.invalidate()
+                print("hi")
+            }else{
+                print("again")
+                if currentPointIndex+1 == trainingPoints.count{
+                    currentPointIndex = 0
+                    numEpochs+=1
+                    numTrainingCorrect  = 0
+                }else{
+                    currentPointIndex+=1
+                }
+            }
+            
+        }
+        
+    }
+    
+    
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         for touch in touches{
@@ -106,13 +179,24 @@ class PlayScene: SKScene {
                         }
                         trainingPoints = []
                         for s in self.children{
-                            if s.name == "point"{
+                            if s.name == "point" || s.name == "line"{
                                 s.removeFromParent()
                             }
                         }
                     }
                     
+                    if sprite.name == "play"{
+                        currentPointIndex = 0
+                        numEpochs = 0
+                        numTrainingCorrect = 0
+                        
+                        weights = NeuralNet.setDefaultWeightsAndBiases(numInputs: 2, numOutputs: 7).weightMatrix
+                        biases = NeuralNet.setDefaultWeightsAndBiases(numInputs: 2, numOutputs: 7).biasVector
+                        timer = Timer.scheduledTimer(timeInterval: 0.03, target: self, selector: #selector(self.perceptronIterate), userInfo: nil, repeats: true)
+                    }
+                    
                     if sprite.name == "trainingSpace"{
+                        print("training")
                         for p in patternsBar.patterns{
                             if p.isToggled{
                                 let point = TrainingPoint(position: touch.location(in: self), pattern: p, myScene: self)
@@ -150,6 +234,7 @@ class PlayScene: SKScene {
                             }
                         }
                     }
+                    
                 }
                 
             }

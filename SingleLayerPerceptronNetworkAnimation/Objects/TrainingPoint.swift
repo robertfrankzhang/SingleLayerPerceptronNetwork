@@ -25,8 +25,8 @@ class TrainingPoint:SKSpriteNode{
     init(position:CGPoint,pattern:Pattern,myScene:SKScene){
         self.myScene = myScene
         self.patternType = pattern.name
-        normX = position.x///myScene.frame.width
-        normY  = position.y///myScene.frame.height
+        normX = position.x
+        normY  = position.y
         super.init(texture: SKTexture(imageNamed: "circle"), color: pattern.color, size: CGSize(width:10,height:10))
         self.position = position
         self.colorBlendFactor = 1
