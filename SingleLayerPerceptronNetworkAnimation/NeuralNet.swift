@@ -119,7 +119,7 @@ class NeuralNet{
         var b = biases
         var e:[Int]
         var returnNil = false
-        let upperBound = 200
+        let upperBound = 30
         
         while counterLoop < upperBound{
             var counter = 0
@@ -144,7 +144,7 @@ class NeuralNet{
             if counterLoop == upperBound{
                 returnNil = true
             }
-           // print(counterLoop)
+           print(counterLoop)
         }
         if returnNil{
             return nil

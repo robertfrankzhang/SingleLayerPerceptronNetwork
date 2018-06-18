@@ -127,6 +127,7 @@ class PlayScene: SKScene {
                                     for pp in patternsBar.patterns{
                                         print(pp.outputVector)
                                     }
+                    
                                     print()
                                     var hasBeenPlaced = false
                                     for p in placedPatterns{//Check if p was in placed patterns
@@ -139,6 +140,7 @@ class PlayScene: SKScene {
                                         placedPatterns.append(p.name)
                                         print(placedPatterns)
                                     }
+                                    (weights,biases) = NeuralNet.train(points: trainingPoints, patternBar: patternsBar.patterns, weights: weights, biases: biases)!
                                 }else{
                                     //Nonlinearizable
                                     print("Nonlinearizable")
