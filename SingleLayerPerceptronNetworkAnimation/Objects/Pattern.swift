@@ -23,4 +23,11 @@ class Pattern{
             outputVector.append(0)
         }
     }
+    
+    init(color:UIColor,name:String,outputVector:[Int],isToggled:Bool){
+        self.color = color
+        self.name = name
+        self.outputVector = outputVector
+        self.isToggled = isToggled
+    }
 }

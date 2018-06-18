@@ -117,27 +117,34 @@ class PlayScene: SKScene {
                             if p.isToggled{
                                 let point = TrainingPoint(position: touch.location(in: self), pattern: p, myScene: self)
                                 point.name = "point"
-                                self.addChild(point)
+                                
                                 if let boundaryCountDelta = NeuralNet.addTrainingPoint(point:point,placedPatterns: placedPatterns,numDecisionBoundaries:numDecisionBoundaries,trainingPoints:trainingPoints,patternBar:patternsBar,weights:weights,biases:biases){
                                     numDecisionBoundaries+=boundaryCountDelta
+                                    print("Bounds: "+String(numDecisionBoundaries))
+                                    print(boundaryCountDelta)
                                     trainingPoints.append(point)
+                                    self.addChild(point)
+                                    for pp in patternsBar.patterns{
+                                        print(pp.outputVector)
+                                    }
+                                    print()
                                     var hasBeenPlaced = false
                                     for p in placedPatterns{//Check if p was in placed patterns
-                                        if p == point.name!{
+                                        if p == point.patternType{
                                             hasBeenPlaced = true
                                         }
                                     }
                                     
                                     if !hasBeenPlaced{//Add new pattern if pattern hasn't been placed before
-                                        for p in patternsBar.patterns{
-                                            if p.name == point.name{
-                                                placedPatterns.append(p.name)
-                                            }
-                                        }
+                                        placedPatterns.append(p.name)
+                                        print(placedPatterns)
                                     }
                                 }else{
                                     //Nonlinearizable
+                                    print("Nonlinearizable")
                                 }
+                                print(weights)
+                                print(biases)
                             }
                         }
                     }
