@@ -106,7 +106,8 @@ class NeuralNet{
     
     static func perceptronIteration(testInput:[CGFloat],testClass:[Int],weights:[[CGFloat]],bias:[CGFloat])->(w:[[CGFloat]],b:[CGFloat],e:[Int]){
         let a = hardLimit(array: matrix1DAddition(a:matrixProduct(a:weights,b:testInput),b:bias))
-        let e = matrix1DSubtraction(a: testClass, b: a)
+        var e = matrix1DSubtraction(a: testClass, b: a)
+        
         let newWeights = matrix2DAddition(a: weights,b: matrixProduct(a: e, b: testInput))
         let newBias = matrix1DAddition(a: bias, b: e)
         return (newWeights,newBias,e)
@@ -119,7 +120,7 @@ class NeuralNet{
         var b = biases
         var e:[Int]
         var returnNil = false
-        let upperBound = 30
+        let upperBound = 500
         
         while counterLoop < upperBound{
             var counter = 0
