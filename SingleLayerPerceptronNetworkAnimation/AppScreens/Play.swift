@@ -13,7 +13,7 @@ class PlayScene: SKScene {
     
     var weights:[[CGFloat]] = []
     var biases:[CGFloat] = []
-    var e:[Int] = []
+    var e:[CGFloat] = []
     
     var trainingPoints:[TrainingPoint] = []
     var placedPatterns:[String] = []
@@ -21,6 +21,7 @@ class PlayScene: SKScene {
     var patternsBar:PatternsBar = PatternsBar()
     
     var numDecisionBoundaries = 1
+    var decisionBoundaries:[SKShapeNode] = []
     
     var timer:Timer = Timer()
     
@@ -35,6 +36,8 @@ class PlayScene: SKScene {
     var currentView = 0 //0: Euclidean, 1: Network
     
     var isFirstTimeRunningSet = true
+    
+    var networkAnimation = NetworkAnimation()
     
     override func didMove(to view: SKView) {
         //Set Display Items
@@ -82,10 +85,6 @@ class PlayScene: SKScene {
         playButton.name = "play"
         self.addChild(playButton)
         
-        let viewAlgoLabel = SKLabelNode(position: CGPoint(x:self.frame.width-10,y:(self.frame.width/8+40)/2), zPosition: 1, text: "Weights", fontColor: ThemeColor.darkPurple, fontName: "Antipasto Pro", fontSize: 30, verticalAlignmentMode: .center, horizontalAlignmentMode: .right)
-        viewAlgoLabel.name = "toggle"
-        self.addChild(viewAlgoLabel)
-        
         let nonLinearizable = SKSpriteNode(color: ThemeColor.darkPurple, width: self.frame.width/2, height: self.frame.width/5, anchorPoint: CGPoint(x:0.5,y:0.5), position: CGPoint(x:self.frame.width/2,y:-1000), zPosition: 0, alpha: 1)
         nonLinearizable.name = "nonLinear"
         let nonLinearizableLabel = SKLabelNode(position: CGPoint(x:0,y:0), zPosition: 1, text: "NonLinearizable", fontColor: .white, fontName: "Antipasto Pro", fontSize: 25, verticalAlignmentMode: .center, horizontalAlignmentMode: .center)
@@ -95,6 +94,9 @@ class PlayScene: SKScene {
         //Prepare Default Weights and Biases
         (weights,biases) = NeuralNet.setDefaultWeightsAndBiases(numInputs: 2, numOutputs: 7)
         
+        //Network Animation
+        networkAnimation = NetworkAnimation(myScene: self, position: CGPoint(x:self.frame.width,y:self.frame.width/8+40), weights: weights, biases: biases)
+        self.addChild(networkAnimation)
     }
     
     @objc func swipe(_ swipe:UISwipeGestureRecognizer){
@@ -106,10 +108,10 @@ class PlayScene: SKScene {
             }
         }
         
-        if swipe.direction == .left && currentView == 0 && isAllUntoggled{//Go to Right Screen
+        if swipe.direction == .left && currentView == 0 && isAllUntoggled  && !isTraining && !isThinking && !isDecisionBoundaryUp{//Go to Right Screen
             currentView = 1
             for s in self.children{
-                if s.name == "bar" || s.name == "trainingSpace" || s.name == "loading" || s.name == "nonLinear" || s.name == "line" || s.name == "point"{
+                if s.name == "bar" || s.name == "trainingSpace" || s.name == "loading" || s.name == "nonLinear" || s.name == "line" || s.name == "point" || s.name == "network"{
                     let move = SKAction.moveBy(x: -self.frame.width, y: 0, duration: 0.2)
                     s.run(move)
                 }
@@ -118,7 +120,7 @@ class PlayScene: SKScene {
         if swipe.direction == .right && currentView == 1 && isAllUntoggled{//Go to Left Screen
             currentView = 0
             for s in self.children{
-                if s.name == "bar" || s.name == "trainingSpace" || s.name == "loading" || s.name == "nonLinear" || s.name == "line" || s.name == "point"{
+                if s.name == "bar" || s.name == "trainingSpace" || s.name == "loading" || s.name == "nonLinear" || s.name == "line" || s.name == "point" || s.name == "network"{
                     let move = SKAction.moveBy(x: self.frame.width, y: 0, duration: 0.2)
                     s.run(move)
                 }
@@ -130,18 +132,14 @@ class PlayScene: SKScene {
         (weights,biases,e) = NeuralNet.perceptronIteration(testInput: [trainingPoints[currentPointIndex].normX,trainingPoints[currentPointIndex].normY], testClass: NeuralNet.patternTypeToPattern(patternType:trainingPoints[currentPointIndex].patternType,patterns: patternsBar.patterns), weights: weights, bias: biases)
         print("iterated")
         
-        for node in self.children{
-            if node.name  == "line"{
-                node.removeFromParent()
-            }
-        }
         print(weights)
         print(currentPointIndex)
         for rowIndex in 0..<weights.count{
-            var yIntercept = CGPoint(x:0,y:-1000*biases[rowIndex]/weights[rowIndex][1])
+            var yIntercept = CGPoint(x:0,y:-biases[rowIndex]/weights[rowIndex][1])
             
-            var slope = -weights[rowIndex][0]/weights[rowIndex][1]
+            let slope = -weights[rowIndex][0]/weights[rowIndex][1]
             var endPoint = CGPoint(x:self.frame.width,y:self.frame.width*slope)
+            
             print(weights[rowIndex][0])
             print(weights[rowIndex][1])
             print(biases)
@@ -149,18 +147,28 @@ class PlayScene: SKScene {
             print(slope)
             print()
             
-            var path = CGMutablePath()
+            let path = CGMutablePath()
             path.move(to: yIntercept)
             path.addLine(to: endPoint)
             
-            let shape = SKShapeNode()
-            shape.path = path
-            shape.name = "line"
-            shape.strokeColor = ThemeColor.darkPurple
-            shape.lineWidth = 4
-            shape.zPosition = -1
-            self.addChild(shape)
+            let moveLine = SKAction.run({
+                self.decisionBoundaries[rowIndex].path = path
+            })
+            self.run(moveLine)
+            
+            if isFirstTimeRunningSet{
+                let shape = SKShapeNode()
+                shape.path = path
+                shape.name = "line"
+                shape.strokeColor = ThemeColor.darkPurple
+                shape.lineWidth = 4
+                shape.zPosition = -1
+                decisionBoundaries.append(shape)
+                self.addChild(shape)
+            }
         }
+        isFirstTimeRunningSet = false
+        networkAnimation.update(weights: weights, biases: biases)
         
         if numEpochs >= 0{
             var done = true
@@ -244,13 +252,17 @@ class PlayScene: SKScene {
                             }
                         }
                         isFirstTimeRunningSet = true
+                        decisionBoundaries = []
                     }
                     
-                    if sprite.name == "play" && !isTraining && !isDecisionBoundaryUp && !isThinking{
+                    if sprite.name == "play" && !isTraining && !isDecisionBoundaryUp && !isThinking && trainingPoints.count > 0 && placedPatterns.count > 1{
                         currentPointIndex = 0
                         numEpochs = 0
                         numTrainingCorrect = 0
                         isTraining = true
+                        
+                        print("TRAINING POINTS")
+                        print(trainingPoints)
                         
                         let animate = SKAction.animate(with: [SKTexture(imageNamed: "1"),SKTexture(imageNamed: "2"),SKTexture(imageNamed: "3"),SKTexture(imageNamed: "4"),SKTexture(imageNamed: "5"),SKTexture(imageNamed: "6"),SKTexture(imageNamed: "7"),SKTexture(imageNamed: "8")], timePerFrame: 0.06)
                         let rep = SKAction.repeatForever(animate)
@@ -259,7 +271,6 @@ class PlayScene: SKScene {
                             weights = NeuralNet.setDefaultWeightsAndBiases(numInputs: 2, numOutputs: 7).weightMatrix
                             biases = NeuralNet.setDefaultWeightsAndBiases(numInputs: 2, numOutputs: 7).biasVector
                         }
-                        isFirstTimeRunningSet = false
                         timer = Timer.scheduledTimer(timeInterval: 0.02, target: self, selector: #selector(self.perceptronIterate), userInfo: nil, repeats: true)
                     }
                     

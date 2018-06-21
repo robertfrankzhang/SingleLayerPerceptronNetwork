@@ -21,6 +21,7 @@
 		E156AF0E20D0787C006A0496 /* ThemeColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = E156AF0D20D0787C006A0496 /* ThemeColor.swift */; };
 		E156AF1020D084FA006A0496 /* PatternsBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = E156AF0F20D084FA006A0496 /* PatternsBar.swift */; };
 		E156AF1220D0860A006A0496 /* Pattern.swift in Sources */ = {isa = PBXBuildFile; fileRef = E156AF1120D0860A006A0496 /* Pattern.swift */; };
+		E188CB9320D974B200789FA1 /* NetworkAnimation.swift in Sources */ = {isa = PBXBuildFile; fileRef = E188CB9220D974B200789FA1 /* NetworkAnimation.swift */; };
 		E19F10B220D0B61D0062BC18 /* MultilineLabelNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = E19F10B120D0B61D0062BC18 /* MultilineLabelNode.swift */; };
 		E19F10B420D1601D0062BC18 /* NeuralNet.swift in Sources */ = {isa = PBXBuildFile; fileRef = E19F10B320D1601D0062BC18 /* NeuralNet.swift */; };
 		E19F10B620D162880062BC18 /* TrainingPoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = E19F10B520D162880062BC18 /* TrainingPoint.swift */; };
@@ -43,6 +44,7 @@
 		E156AF0D20D0787C006A0496 /* ThemeColor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemeColor.swift; sourceTree = "<group>"; };
 		E156AF0F20D084FA006A0496 /* PatternsBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PatternsBar.swift; sourceTree = "<group>"; };
 		E156AF1120D0860A006A0496 /* Pattern.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Pattern.swift; sourceTree = "<group>"; };
+		E188CB9220D974B200789FA1 /* NetworkAnimation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkAnimation.swift; sourceTree = "<group>"; };
 		E19F10B120D0B61D0062BC18 /* MultilineLabelNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultilineLabelNode.swift; sourceTree = "<group>"; };
 		E19F10B320D1601D0062BC18 /* NeuralNet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NeuralNet.swift; sourceTree = "<group>"; };
 		E19F10B520D162880062BC18 /* TrainingPoint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrainingPoint.swift; sourceTree = "<group>"; };
@@ -120,6 +122,7 @@
 				E156AF0F20D084FA006A0496 /* PatternsBar.swift */,
 				E156AF1120D0860A006A0496 /* Pattern.swift */,
 				E19F10B520D162880062BC18 /* TrainingPoint.swift */,
+				E188CB9220D974B200789FA1 /* NetworkAnimation.swift */,
 			);
 			path = Objects;
 			sourceTree = "<group>";
@@ -206,6 +209,7 @@
 				E156AEFD20D00C76006A0496 /* Extensions.swift in Sources */,
 				E156AF1220D0860A006A0496 /* Pattern.swift in Sources */,
 				E156AF0E20D0787C006A0496 /* ThemeColor.swift in Sources */,
+				E188CB9320D974B200789FA1 /* NetworkAnimation.swift in Sources */,
 				E19F10B420D1601D0062BC18 /* NeuralNet.swift in Sources */,
 				E156AF0120D013B7006A0496 /* Play.swift in Sources */,
 				E19F10B220D0B61D0062BC18 /* MultilineLabelNode.swift in Sources */,

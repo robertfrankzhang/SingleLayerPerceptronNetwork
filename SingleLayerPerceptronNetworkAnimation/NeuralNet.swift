@@ -55,7 +55,7 @@ class NeuralNet{
         return v
     }
     
-    static func matrixProduct(a:[Int],b:[CGFloat])->[[CGFloat]]{
+    static func matrixProduct(a:[CGFloat],b:[CGFloat])->[[CGFloat]]{
         var c:[[CGFloat]] = []
         for e in a{
             var row:[CGFloat] = []
@@ -95,21 +95,28 @@ class NeuralNet{
         return v
     }
 
-    static func matrix1DSubtraction(a:[Int],b:[Int])->[Int]{
-        var c:[Int] = []
+    static func matrix1DSubtraction(a:[Int],b:[Int])->[CGFloat]{
+        var c:[CGFloat] = []
         for i in 0..<a.count{
-            c.append(a[i]-b[i])
+            c.append(CGFloat(a[i]-b[i]))
         }
         return c
     }
     
     
-    static func perceptronIteration(testInput:[CGFloat],testClass:[Int],weights:[[CGFloat]],bias:[CGFloat])->(w:[[CGFloat]],b:[CGFloat],e:[Int]){
+    static func perceptronIteration(testInput:[CGFloat],testClass:[Int],weights:[[CGFloat]],bias:[CGFloat])->(w:[[CGFloat]],b:[CGFloat],e:[CGFloat]){
         let a = hardLimit(array: matrix1DAddition(a:matrixProduct(a:weights,b:testInput),b:bias))
         var e = matrix1DSubtraction(a: testClass, b: a)
         
-        let newWeights = matrix2DAddition(a: weights,b: matrixProduct(a: e, b: testInput))
         let newBias = matrix1DAddition(a: bias, b: e)
+        
+        let learningRate:CGFloat = 0.00001
+        for i in 0..<e.count{
+            e[i] = e[i]*learningRate
+        }
+        
+        let newWeights = matrix2DAddition(a: weights,b: matrixProduct(a: e, b: testInput))
+        
         return (newWeights,newBias,e)
     }
     
@@ -118,9 +125,9 @@ class NeuralNet{
         var counterLoop = 0
         var w = weights
         var b = biases
-        var e:[Int]
+        var e:[CGFloat]
         var returnNil = false
-        let upperBound = 500
+        let upperBound = 50
         
         while counterLoop < upperBound{
             var counter = 0
