@@ -238,7 +238,7 @@ class NeuralNet{
                         }
                         var counter=0
                         
-                        
+                        //Copy Placed Pattern Vectors
                         var placedPatternVectorsCopy:[[Int]] = []
                         for vector in placedPatternVectors{
                             var v:[Int] = []
@@ -247,14 +247,21 @@ class NeuralNet{
                             }
                             placedPatternVectorsCopy.append(v)
                         }
-                        var isValid = true
+                        
+                        //Modify Placed Pattern Vectors Copy
                         for i in 0..<placedPatternVectors.count{
                             placedPatternVectorsCopy[i][numDecisionBoundaries] = endVector[counter]
-                            if placedPatternVectorsCopy[i] == outputVector{
+                        }
+                        
+                        //Check if new endings for placed pattern vectors = new output vector
+                        var isValid = true
+                        for i in placedPatternVectorsCopy{
+                            if i == outputVector{
                                 isValid = false
                             }
                         }
                         
+                        //Only if all placed pattern vectors are unique, test
                         if isValid{
                             for i in 0..<placedPatternVectors.count{
                                 placedPatternVectors[i][numDecisionBoundaries] = endVector[counter]

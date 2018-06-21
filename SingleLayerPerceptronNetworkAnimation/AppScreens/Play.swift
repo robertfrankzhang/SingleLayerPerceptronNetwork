@@ -140,13 +140,6 @@ class PlayScene: SKScene {
             let slope = -weights[rowIndex][0]/weights[rowIndex][1]
             var endPoint = CGPoint(x:self.frame.width,y:-biases[rowIndex]/weights[rowIndex][1]+self.frame.width*slope)
             
-            print(weights[rowIndex][0])
-            print(weights[rowIndex][1])
-            print(biases)
-            print(yIntercept)
-            print(slope)
-            print()
-            
             let path = CGMutablePath()
             path.move(to: yIntercept)
             path.addLine(to: endPoint)
@@ -308,16 +301,6 @@ class PlayScene: SKScene {
                                         print(pp.outputVector)
                                     }
                                     
-                                    for point in trainingPoints{
-                                        print(point.normX)
-                                        print(point.normY)
-                                        print()
-                                    }
-                                    
-                                    print(weights)
-                                    print(biases)
-                    
-                                    print()
                                     var hasBeenPlaced = false
                                     for p in placedPatterns{//Check if p was in placed patterns
                                         if p == point.patternType{
