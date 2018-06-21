@@ -81,6 +81,10 @@ class PlayScene: SKScene {
         resetLabel.name = "reset"
         self.addChild(resetLabel)
         
+        let testLabel = SKLabelNode(position: CGPoint(x:self.frame.width-10,y:(self.frame.width/8+40)/2), zPosition: 1, text: "Testing: On", fontColor: ThemeColor.darkPurple, fontName: "Antipasto Pro", fontSize: 30, verticalAlignmentMode: .center, horizontalAlignmentMode: .right)
+        resetLabel.name = "test"
+        self.addChild(testLabel)
+        
         let playButton = SKSpriteNode(imageName: "play", width: self.frame.width/6, height: self.frame.width/6, anchorPoint: CGPoint(x:0.5,y:0.5), position: CGPoint(x:self.frame.width/2,y:(self.frame.width/8+40)/2), zPosition: 1, alpha: 1)
         playButton.name = "play"
         self.addChild(playButton)
@@ -130,10 +134,7 @@ class PlayScene: SKScene {
     
     @objc func perceptronIterate(){
         (weights,biases,e) = NeuralNet.perceptronIteration(testInput: [trainingPoints[currentPointIndex].normX,trainingPoints[currentPointIndex].normY], testClass: NeuralNet.patternTypeToPattern(patternType:trainingPoints[currentPointIndex].patternType,patterns: patternsBar.patterns), weights: weights, bias: biases)
-        print("iterated")
         
-        print(weights)
-        print(currentPointIndex)
         for rowIndex in 0..<weights.count{
             var yIntercept = CGPoint(x:0,y:-biases[rowIndex]/weights[rowIndex][1])
             
@@ -143,6 +144,9 @@ class PlayScene: SKScene {
             let path = CGMutablePath()
             path.move(to: yIntercept)
             path.addLine(to: endPoint)
+            path.addLine(to: CGPoint(x:self.frame.width,y:self.frame.height))
+            path.addLine(to: CGPoint(x:0,y:self.frame.height))
+            path.addLine(to:yIntercept)
             
             let moveLine = SKAction.run({
                 self.decisionBoundaries[rowIndex].path = path
@@ -154,8 +158,10 @@ class PlayScene: SKScene {
                 shape.path = path
                 shape.name = "line"
                 shape.strokeColor = ThemeColor.darkPurple
-                shape.lineWidth = 4
+                shape.lineWidth = 2
                 shape.zPosition = -1
+                shape.fillColor = .lightGray
+                shape.alpha = CGFloat(arc4random_uniform(100))/100*0.1
                 decisionBoundaries.append(shape)
                 self.addChild(shape)
             }
@@ -184,9 +190,9 @@ class PlayScene: SKScene {
                         sprite.texture = SKTexture(imageNamed:"play")
                     }
                 }
-                print("hi")
+                
             }else{
-                print("again")
+               
                 if currentPointIndex+1 == trainingPoints.count{
                     currentPointIndex = 0
                     numEpochs+=1
@@ -276,7 +282,7 @@ class PlayScene: SKScene {
                                     if s.name == "loading"{
                                         s.alpha = 1
                                         
-                                        let animate = SKAction.animate(with: [SKTexture(imageNamed: "1"),SKTexture(imageNamed: "2"),SKTexture(imageNamed: "3"),SKTexture(imageNamed: "4"),SKTexture(imageNamed: "5"),SKTexture(imageNamed: "6"),SKTexture(imageNamed: "7"),SKTexture(imageNamed: "8")], timePerFrame: 0.06)
+                                        let animate = SKAction.animate(with: [SKTexture(imageNamed: "1"),SKTexture(imageNamed: "2"),SKTexture(imageNamed: "3"),SKTexture(imageNamed: "4"),SKTexture(imageNamed: "5"),SKTexture(imageNamed: "6"),SKTexture(imageNamed: "7"),SKTexture(imageNamed: "8")], timePerFrame: 0.01)
                                         let rep = SKAction.repeatForever(animate)
                                         s.run(rep)
                                     }
