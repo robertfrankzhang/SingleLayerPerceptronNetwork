@@ -138,7 +138,7 @@ class PlayScene: SKScene {
             var yIntercept = CGPoint(x:0,y:-biases[rowIndex]/weights[rowIndex][1])
             
             let slope = -weights[rowIndex][0]/weights[rowIndex][1]
-            var endPoint = CGPoint(x:self.frame.width,y:self.frame.width*slope)
+            var endPoint = CGPoint(x:self.frame.width,y:-biases[rowIndex]/weights[rowIndex][1]+self.frame.width*slope)
             
             print(weights[rowIndex][0])
             print(weights[rowIndex][1])
@@ -261,9 +261,6 @@ class PlayScene: SKScene {
                         numTrainingCorrect = 0
                         isTraining = true
                         
-                        print("TRAINING POINTS")
-                        print(trainingPoints)
-                        
                         let animate = SKAction.animate(with: [SKTexture(imageNamed: "1"),SKTexture(imageNamed: "2"),SKTexture(imageNamed: "3"),SKTexture(imageNamed: "4"),SKTexture(imageNamed: "5"),SKTexture(imageNamed: "6"),SKTexture(imageNamed: "7"),SKTexture(imageNamed: "8")], timePerFrame: 0.06)
                         let rep = SKAction.repeatForever(animate)
                         sprite.run(rep)
@@ -310,6 +307,15 @@ class PlayScene: SKScene {
                                     for pp in patternsBar.patterns{
                                         print(pp.outputVector)
                                     }
+                                    
+                                    for point in trainingPoints{
+                                        print(point.normX)
+                                        print(point.normY)
+                                        print()
+                                    }
+                                    
+                                    print(weights)
+                                    print(biases)
                     
                                     print()
                                     var hasBeenPlaced = false

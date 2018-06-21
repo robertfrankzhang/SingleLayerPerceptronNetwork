@@ -166,7 +166,6 @@ class NeuralNet{
         
         var allPatterns:[Pattern] = copy(a: patternBar.patterns)
         print("begin")
-        print(allPatterns[0]===patternBar.patterns[0])
         
         if wasPatternBeenUsedBefore(point: point, placedPatterns: placedPatterns){//If old Pattern
             //First see if already used vectors work
@@ -207,7 +206,6 @@ class NeuralNet{
             for decimalTry in 0..<numPossibilities{
                 let outputVector = decimalToOutputVector(num: decimalTry, vectorLength: patternBar.patterns.count-1)
                 if !doesArrayOfArraysContainArray(bigArray: patternTypesToPatterns(patternTypes: placedPatterns, patterns: patternBar.patterns),array: outputVector){//If output vector isn't in the placed vectors
-                    print("hi")
                     print(outputVector)
                     patternBar.patterns[findPatternIndex(patternType: point.patternType, patterns: patternBar.patterns)].outputVector = outputVector
                     if let (_,_) = train(points:trainingPoints+[point],patternBar: patternBar.patterns,weights: weights,biases: biases){
@@ -239,29 +237,44 @@ class NeuralNet{
                             placedPatternVectors.append(patternTypeToPattern(patternType: pattern, patterns: patternBar.patterns))
                         }
                         var counter=0
+                        
+                        
+                        var placedPatternVectorsCopy:[[Int]] = []
+                        for vector in placedPatternVectors{
+                            var v:[Int] = []
+                            for item in vector{
+                                v.append(item)
+                            }
+                            placedPatternVectorsCopy.append(v)
+                        }
+                        var isValid = true
                         for i in 0..<placedPatternVectors.count{
-                            placedPatternVectors[i][numDecisionBoundaries] = endVector[counter]
-                            let somePattern = outVectorToPattern(vector: placedPatternVectors[i], patterns: patternBar.patterns, numBoundaries: numDecisionBoundaries)!
-                            patternBar.patterns[findPatternIndex(patternType: somePattern.name, patterns: patternBar.patterns)].outputVector = placedPatternVectors[i]
-                            counter+=1
+                            placedPatternVectorsCopy[i][numDecisionBoundaries] = endVector[counter]
+                            if placedPatternVectorsCopy[i] == outputVector{
+                                isValid = false
+                            }
                         }
                         
-                        print("Right After")
-                        for pp in patternBar.patterns{
-                            print(pp.outputVector)
+                        if isValid{
+                            for i in 0..<placedPatternVectors.count{
+                                placedPatternVectors[i][numDecisionBoundaries] = endVector[counter]
+                                let somePattern = outVectorToPattern(vector: placedPatternVectors[i], patterns: patternBar.patterns, numBoundaries: numDecisionBoundaries)!
+                                patternBar.patterns[findPatternIndex(patternType: somePattern.name, patterns: patternBar.patterns)].outputVector = placedPatternVectors[i]
+                                counter+=1
+                            }
+                            print("Right After")
+                            for pp in patternBar.patterns{
+                                print(pp.outputVector)
+                            }
+                            
+                            if let (_,_) = train(points:trainingPoints+[point],patternBar: patternBar.patterns,weights: weights,biases: biases){
+                                print("notUsedBefore and has new bounds")
+                                return 1
+                            }else{
+                                patternBar.patterns = copy(a:allPatterns)
+                            }
                         }
-                        print("All")
-                        for pp in allPatterns{
-                            print(pp.outputVector)
-                        }
-                        print(allPatterns[0]===patternBar.patterns[0])
-                        
-                        if let (_,_) = train(points:trainingPoints+[point],patternBar: patternBar.patterns,weights: weights,biases: biases){
-                            print("notUsedBefore and has new bounds")
-                            return 1
-                        }else{
-                            patternBar.patterns = copy(a:allPatterns)
-                        }
+                       
                     }
                     
                 }
