@@ -27,7 +27,7 @@ class TrainingPoint:SKSpriteNode{
         self.patternType = pattern.name
         normX = position.x
         normY  = position.y
-        super.init(texture: SKTexture(imageNamed: "circle"), color: pattern.color, size: CGSize(width:10,height:10))
+        super.init(texture: SKTexture(imageNamed: "circleWithOutline"), color: pattern.color, size: CGSize(width:10,height:10))
         self.position = position
         self.zPosition = -1
         self.colorBlendFactor = 1

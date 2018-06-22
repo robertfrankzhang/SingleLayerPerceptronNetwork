@@ -81,10 +81,6 @@ class PlayScene: SKScene {
         resetLabel.name = "reset"
         self.addChild(resetLabel)
         
-        let testLabel = SKLabelNode(position: CGPoint(x:self.frame.width-10,y:(self.frame.width/8+40)/2), zPosition: 1, text: "Testing: On", fontColor: ThemeColor.darkPurple, fontName: "Antipasto Pro", fontSize: 30, verticalAlignmentMode: .center, horizontalAlignmentMode: .right)
-        resetLabel.name = "test"
-        self.addChild(testLabel)
-        
         let playButton = SKSpriteNode(imageName: "play", width: self.frame.width/6, height: self.frame.width/6, anchorPoint: CGPoint(x:0.5,y:0.5), position: CGPoint(x:self.frame.width/2,y:(self.frame.width/8+40)/2), zPosition: 1, alpha: 1)
         playButton.name = "play"
         self.addChild(playButton)
@@ -157,16 +153,27 @@ class PlayScene: SKScene {
                 let shape = SKShapeNode()
                 shape.path = path
                 shape.name = "line"
-                shape.strokeColor = ThemeColor.darkPurple
+                shape.strokeColor = .lightGray
                 shape.lineWidth = 2
                 shape.zPosition = -1
-                shape.fillColor = .lightGray
-                shape.alpha = CGFloat(arc4random_uniform(100))/100*0.1
                 decisionBoundaries.append(shape)
                 self.addChild(shape)
             }
         }
         isFirstTimeRunningSet = false
+        
+        for rowIndex in 0..<decisionBoundaries.count{
+            var yIntercept = -biases[rowIndex]/weights[rowIndex][1]
+            let slope = -weights[rowIndex][0]/weights[rowIndex][1]
+            
+            if yIntercept < 0.0 && slope < 0.0{
+                decisionBoundaries[rowIndex].fillColor = .clear
+            }else{
+                decisionBoundaries[rowIndex].fillColor = UIColor(red:150/255,green:150/255,blue:150/255,alpha:CGFloat(arc4random_uniform(75)+25)/150)
+                decisionBoundaries[rowIndex].alpha = 0.5
+            }
+        }
+    
         networkAnimation.update(weights: weights, biases: biases)
         
         if numEpochs >= 0{
@@ -303,6 +310,8 @@ class PlayScene: SKScene {
                                     
                                     trainingPoints.append(point)
                                     self.addChild(point)
+                                    
+                                    
                                     for pp in patternsBar.patterns{
                                         print(pp.outputVector)
                                     }
