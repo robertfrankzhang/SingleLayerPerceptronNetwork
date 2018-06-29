@@ -12,6 +12,7 @@
  -When calculating point, make a loading spinning node appear
  -Fix bug of calculation: stop new patterns from being old output vectors
  -Classifying algorithm bug where laying down an old pattern can actually change deeper into output vector??
+ -Update ReadMe
  */
 
 import SpriteKit
