@@ -6,6 +6,14 @@
 //  Copyright © 2018 RZ. All rights reserved.
 //
 
+/*
+ Task to complete before publishing:
+ -Add a Testing Mode that classifies unlabeled points (don't lay points, just tap and classify after training.
+ -When calculating point, make a loading spinning node appear
+ -Fix bug of calculation: stop new patterns from being old output vectors
+ -Classifying algorithm bug where laying down an old pattern can actually change deeper into output vector??
+ */
+
 import SpriteKit
 import GameplayKit
 
