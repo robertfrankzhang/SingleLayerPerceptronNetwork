@@ -31,6 +31,10 @@ class NeuralNet{
         return (weightMatrix,biasVector)
     }
     
+    static func classify(x:CGFloat,y:CGFloat,weights:[[CGFloat]],biases:[CGFloat])->[Int]{
+        return hardLimit(array: matrix1DAddition(a: matrixProduct(a: weights, b: [x,y]), b: biases))
+    }
+    
     static func hardLimit(array:[CGFloat])->[Int]{
         var v:[Int] = []
         for x in array{

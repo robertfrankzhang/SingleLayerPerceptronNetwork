@@ -262,16 +262,16 @@ class PlayScene: SKScene {
                     
                     if sprite.name == "bar" && isTesting && !isTestingLabelUp{
                         isTestingLabelUp = true
-                        let turnOffNotice = SKSpriteNode(color: ThemeColor.darkPurple, width: self.frame.width/2, height: 1.6*self.frame.width/5, anchorPoint: CGPoint(x:0.5,y:0.5), position: CGPoint(x:self.frame.width/2,y:-1000), zPosition: 0, alpha: 1)
+                        let turnOffNotice = SKSpriteNode(color: ThemeColor.darkPurple, width: self.frame.width/2, height: 1.5*self.frame.width/5, anchorPoint: CGPoint(x:0.5,y:0.5), position: CGPoint(x:self.frame.width/2,y:-1000), zPosition: 3, alpha: 1)
                         turnOffNotice.name = "nonLinear"
-                        let turnOffNoticeLabel = SKLabelNode(position: CGPoint(x:0,y:self.frame.width/15), zPosition: 1, text: "Turn Testing OFF", fontColor: .white, fontName: "Antipasto Pro", fontSize: 22, verticalAlignmentMode: .center, horizontalAlignmentMode: .center)
-                        let turnOffNoticeLabel2 = SKLabelNode(position: CGPoint(x:0,y:-self.frame.width/15), zPosition: 1, text: "To Place Points", fontColor: .white, fontName: "Antipasto Pro", fontSize: 22, verticalAlignmentMode: .center, horizontalAlignmentMode: .center)
+                        let turnOffNoticeLabel = SKLabelNode(position: CGPoint(x:0,y:self.frame.width/17), zPosition: 1, text: "Turn Testing OFF", fontColor: .white, fontName: "Antipasto Pro", fontSize: 22, verticalAlignmentMode: .center, horizontalAlignmentMode: .center)
+                        let turnOffNoticeLabel2 = SKLabelNode(position: CGPoint(x:0,y:-self.frame.width/17), zPosition: 1, text: "To Place Points", fontColor: .white, fontName: "Antipasto Pro", fontSize: 22, verticalAlignmentMode: .center, horizontalAlignmentMode: .center)
                         turnOffNotice.addChild(turnOffNoticeLabel)
                         turnOffNotice.addChild(turnOffNoticeLabel2)
                         self.addChild(turnOffNotice)
                         
                         let moveUp = SKAction.moveTo(y: self.frame.height/2, duration: 0.2)
-                        let wait =  SKAction.wait(forDuration: 1.3)
+                        let wait =  SKAction.wait(forDuration: 2)
                         let moveDown = SKAction.moveTo(y: -1000, duration: 0.2)
                         let remove  = SKAction.removeFromParent()
                         let deTrue = SKAction.run({
@@ -340,6 +340,39 @@ class PlayScene: SKScene {
                     }
                     
                     if sprite.name == "trainingSpace" && isTesting{
+                        let classification = NeuralNet.classify(x: touch.location(in: self).x, y: touch.location(in: self).y, weights: weights, biases: biases)
+                        var newPs:[Pattern] = []
+                        for name in placedPatterns{
+                            for newP in patternsBar.patterns{
+                                if newP.name == name{
+                                    newPs.append(newP)
+                                }
+                            }
+                        }
+                        let moveUp = SKAction.moveTo(y: self.frame.height/2, duration: 0.2)
+                        let wait =  SKAction.wait(forDuration: 2)
+                        let remove  = SKAction.removeFromParent()
+                        let seq = SKAction.sequence([moveUp,wait,remove])
+                        for c in self.children{
+                            if c.name == "classificationLabel"{
+                                c.removeFromParent()
+                            }
+                        }
+                        if let cPattern = NeuralNet.outVectorToPattern(vector: classification, patterns: newPs, numBoundaries: numDecisionBoundaries){
+                            let classLabel = SKSpriteNode(color: cPattern.color, width: self.frame.width/2, height: self.frame.width/5, anchorPoint: CGPoint(x:0.5,y:0.5), position: CGPoint(x:self.frame.width/2,y:-1000), zPosition: 0, alpha: 1)
+                            let classLabelLabel = SKLabelNode(position: CGPoint(x:0,y:0), zPosition: 1, text: cPattern.name, fontColor: .white, fontName: "ArialRoundedMTBold", fontSize: 25, verticalAlignmentMode: .center, horizontalAlignmentMode: .center)
+                            classLabel.addChild(classLabelLabel)
+                            classLabel.name = "classificationLabel"
+                            self.addChild(classLabel)
+                            classLabel.run(seq)
+                        }else{
+                            let unClassified = SKSpriteNode(color: ThemeColor.darkPurple, width: self.frame.width/2, height: self.frame.width/5, anchorPoint: CGPoint(x:0.5,y:0.5), position: CGPoint(x:self.frame.width/2,y:-1000), zPosition: 0, alpha: 1)
+                            let unClassifiedLabel = SKLabelNode(position: CGPoint(x:0,y:0), zPosition: 1, text: "Unclassified", fontColor: .white, fontName: "Antipasto Pro", fontSize: 25, verticalAlignmentMode: .center, horizontalAlignmentMode: .center)
+                            unClassified.addChild(unClassifiedLabel)
+                            unClassified.name = "classificationLabel"
+                            self.addChild(unClassified)
+                            unClassified.run(seq)
+                        }
                         
                     }
                     
