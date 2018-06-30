@@ -32,12 +32,16 @@ class PlayScene: SKScene {
     var isTraining = false
     var isThinking = false
     var isDecisionBoundaryUp = false
+    var finishedTraining = false
     
     var currentView = 0 //0: Euclidean, 1: Network
     
     var isFirstTimeRunningSet = true
     
     var networkAnimation = NetworkAnimation()
+    
+    var isTesting = false
+    var testingLabel = SKLabelNode()
     
     override func didMove(to view: SKView) {
         //Set Display Items
@@ -84,6 +88,11 @@ class PlayScene: SKScene {
         let playButton = SKSpriteNode(imageName: "play", width: self.frame.width/6, height: self.frame.width/6, anchorPoint: CGPoint(x:0.5,y:0.5), position: CGPoint(x:self.frame.width/2,y:(self.frame.width/8+40)/2), zPosition: 1, alpha: 1)
         playButton.name = "play"
         self.addChild(playButton)
+        
+        testingLabel = SKLabelNode(position: CGPoint(x:self.frame.width-10,y:(self.frame.width/8+40)/2), zPosition: 1, text: "Test: OFF", fontColor: .lightGray, fontName: "Antipasto Pro", fontSize: 30, verticalAlignmentMode: .center, horizontalAlignmentMode: .right)
+        testingLabel.name = "test"
+        testingLabel.alpha = 0
+        self.addChild(testingLabel)
         
         let nonLinearizable = SKSpriteNode(color: ThemeColor.darkPurple, width: self.frame.width/2, height: self.frame.width/5, anchorPoint: CGPoint(x:0.5,y:0.5), position: CGPoint(x:self.frame.width/2,y:-1000), zPosition: 0, alpha: 1)
         nonLinearizable.name = "nonLinear"
@@ -190,6 +199,7 @@ class PlayScene: SKScene {
             if numTrainingCorrect == trainingPoints.count{
                 timer.invalidate()
                 isTraining = false
+                finishedTraining = true
                 for s in self.children{
                     if s.name == "play"{
                         s.removeAllActions()
@@ -221,7 +231,7 @@ class PlayScene: SKScene {
                         let scene = HomeScene(size: self.size)
                         view?.presentScene(scene, transition:SKTransition.push(with: .left, duration: 0.3))
                     }
-                    if sprite.name == "bar"{
+                    if sprite.name == "bar" && !isTesting{
                         if let pBar = sprite as? PatternsBar{
                             let moveDown = SKAction.moveBy(x: 0, y: -10, duration: 0.1)
                             let moveUp = SKAction.moveBy(x: 0, y: 10, duration: 0.1)
@@ -259,6 +269,10 @@ class PlayScene: SKScene {
                         }
                         isFirstTimeRunningSet = true
                         decisionBoundaries = []
+                        testingLabel.alpha = 0
+                        isTesting = false
+                        testingLabel.fontColor = .lightGray
+                        testingLabel.text = "Test: OFF"
                     }
                     
                     if sprite.name == "play" && !isTraining && !isDecisionBoundaryUp && !isThinking && trainingPoints.count > 0 && placedPatterns.count > 1{
@@ -277,7 +291,34 @@ class PlayScene: SKScene {
                         timer = Timer.scheduledTimer(timeInterval: 0.02, target: self, selector: #selector(self.perceptronIterate), userInfo: nil, repeats: true)
                     }
                     
-                    if sprite.name == "trainingSpace"{
+                    if sprite.name == "test" && !isTraining && !isDecisionBoundaryUp && !isThinking && trainingPoints.count > 0 && placedPatterns.count > 1{
+                        if !isTesting{
+                            isTesting = true
+                            testingLabel.fontColor = ThemeColor.darkPurple
+                            testingLabel.text = "Test: ON"
+                            let moveUp = SKAction.moveBy(x: 0, y: 10, duration: 0.1)
+                            for pattern in patternsBar.patterns{
+                                if pattern.isToggled{
+                                    pattern.isToggled = false
+                                    for spritePattern in patternsBar.children{
+                                        if spritePattern.name == pattern.name{
+                                            spritePattern.run(moveUp)
+                                        }
+                                    }
+                                }
+                            }
+                        }else{
+                            isTesting = false
+                            testingLabel.fontColor = .lightGray
+                            testingLabel.text = "Test: OFF"
+                        }
+                    }
+                    
+                    if sprite.name == "trainingSpace" && isTesting{
+                        
+                    }
+                    
+                    if sprite.name == "trainingSpace" && !isTesting{
                         print("training")
                         for p in patternsBar.patterns{
                             if p.isToggled && !isDecisionBoundaryUp && !isThinking && !isTraining{
@@ -311,6 +352,10 @@ class PlayScene: SKScene {
                                     trainingPoints.append(point)
                                     self.addChild(point)
                                     
+                                    isTesting = false
+                                    testingLabel.fontColor = .lightGray
+                                    testingLabel.text = "Test: OFF"
+                                    finishedTraining = false
                                     
                                     for pp in patternsBar.patterns{
                                         print(pp.outputVector)
@@ -359,10 +404,20 @@ class PlayScene: SKScene {
                         }
                     }
                     
+                    
+                    
                 }
                 
             }
             
+        }
+    }
+    
+    override func update(_ currentTime: TimeInterval) {
+        if trainingPoints.count > 0 && placedPatterns.count > 1 && finishedTraining{
+            testingLabel.alpha = 1
+        }else{
+            testingLabel.alpha = 0
         }
     }
 }
