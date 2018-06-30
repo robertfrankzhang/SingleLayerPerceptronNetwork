@@ -9,10 +9,12 @@
 /*
  Task to complete before publishing:
  -Add a Testing Mode that classifies unlabeled points (don't lay points, just tap and classify after training.
+ -When Testing Mode On and he tries to touch patterns bar, show  "turn testing off to place more points"
  -When calculating point, make a loading spinning node appear
  -Fix bug of calculation: stop new patterns from being old output vectors
  -Classifying algorithm bug where laying down an old pattern can actually change deeper into output vector??
  -Update ReadMe
+ -Update Info Section
  */
 
 import SpriteKit

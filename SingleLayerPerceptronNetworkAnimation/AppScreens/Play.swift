@@ -42,6 +42,8 @@ class PlayScene: SKScene {
     
     var isTesting = false
     var testingLabel = SKLabelNode()
+    var isTestingLabelUp = false
+    var playButton = SKSpriteNode()
     
     override func didMove(to view: SKView) {
         //Set Display Items
@@ -85,7 +87,7 @@ class PlayScene: SKScene {
         resetLabel.name = "reset"
         self.addChild(resetLabel)
         
-        let playButton = SKSpriteNode(imageName: "play", width: self.frame.width/6, height: self.frame.width/6, anchorPoint: CGPoint(x:0.5,y:0.5), position: CGPoint(x:self.frame.width/2,y:(self.frame.width/8+40)/2), zPosition: 1, alpha: 1)
+        playButton = SKSpriteNode(imageName: "play", width: self.frame.width/6, height: self.frame.width/6, anchorPoint: CGPoint(x:0.5,y:0.5), position: CGPoint(x:self.frame.width/2,y:(self.frame.width/8+40)/2), zPosition: 1, alpha: 1)
         playButton.name = "play"
         self.addChild(playButton)
         
@@ -200,6 +202,7 @@ class PlayScene: SKScene {
                 timer.invalidate()
                 isTraining = false
                 finishedTraining = true
+                playButton.alpha = 0
                 for s in self.children{
                     if s.name == "play"{
                         s.removeAllActions()
@@ -256,6 +259,28 @@ class PlayScene: SKScene {
                             }
                         }
                     }
+                    
+                    if sprite.name == "bar" && isTesting && !isTestingLabelUp{
+                        isTestingLabelUp = true
+                        let turnOffNotice = SKSpriteNode(color: ThemeColor.darkPurple, width: self.frame.width/2, height: 1.6*self.frame.width/5, anchorPoint: CGPoint(x:0.5,y:0.5), position: CGPoint(x:self.frame.width/2,y:-1000), zPosition: 0, alpha: 1)
+                        turnOffNotice.name = "nonLinear"
+                        let turnOffNoticeLabel = SKLabelNode(position: CGPoint(x:0,y:self.frame.width/15), zPosition: 1, text: "Turn Testing OFF", fontColor: .white, fontName: "Antipasto Pro", fontSize: 22, verticalAlignmentMode: .center, horizontalAlignmentMode: .center)
+                        let turnOffNoticeLabel2 = SKLabelNode(position: CGPoint(x:0,y:-self.frame.width/15), zPosition: 1, text: "To Place Points", fontColor: .white, fontName: "Antipasto Pro", fontSize: 22, verticalAlignmentMode: .center, horizontalAlignmentMode: .center)
+                        turnOffNotice.addChild(turnOffNoticeLabel)
+                        turnOffNotice.addChild(turnOffNoticeLabel2)
+                        self.addChild(turnOffNotice)
+                        
+                        let moveUp = SKAction.moveTo(y: self.frame.height/2, duration: 0.2)
+                        let wait =  SKAction.wait(forDuration: 1.3)
+                        let moveDown = SKAction.moveTo(y: -1000, duration: 0.2)
+                        let remove  = SKAction.removeFromParent()
+                        let deTrue = SKAction.run({
+                            self.isTestingLabelUp = false
+                        })
+                        let seq = SKAction.sequence([moveUp,wait,moveDown,remove,deTrue])
+                        turnOffNotice.run(seq)
+                    }
+                    
                     if sprite.name == "reset"{
                         placedPatterns = []
                         for p in patternsBar.patterns{
@@ -275,7 +300,7 @@ class PlayScene: SKScene {
                         testingLabel.text = "Test: OFF"
                     }
                     
-                    if sprite.name == "play" && !isTraining && !isDecisionBoundaryUp && !isThinking && trainingPoints.count > 0 && placedPatterns.count > 1{
+                    if sprite.name == "play" && !isTraining && !isDecisionBoundaryUp && !isThinking && trainingPoints.count > 0 && placedPatterns.count > 1 && !finishedTraining{
                         currentPointIndex = 0
                         numEpochs = 0
                         numTrainingCorrect = 0
@@ -356,6 +381,7 @@ class PlayScene: SKScene {
                                     testingLabel.fontColor = .lightGray
                                     testingLabel.text = "Test: OFF"
                                     finishedTraining = false
+                                    playButton.alpha = 1
                                     
                                     for pp in patternsBar.patterns{
                                         print(pp.outputVector)
