@@ -29,10 +29,10 @@ class PlayScene: SKScene {
     var numEpochs = 0
     var numTrainingCorrect = 0
     
-    var isTraining = false
+    var isTraining = false//Is the play button spinning
     var isThinking = false
     var isDecisionBoundaryUp = false
-    var finishedTraining = false
+    var finishedTraining = false//Are the weights/biases updated to the current set of placed points
     
     var currentView = 0 //0: Euclidean, 1: Network
     
@@ -76,7 +76,7 @@ class PlayScene: SKScene {
         self.view?.addGestureRecognizer(swipeRightGesture)
         self.addChild(targetBlank)
         
-        loading = SKSpriteNode(imageName: "1", width: self.frame.width/8, height: self.frame.width/8, anchorPoint: CGPoint(x:0.5,y:0.5), position: CGPoint(x:self.frame.width/2,y:self.frame.height/2), zPosition: 4, alpha: 1)
+        loading = SKSpriteNode(imageName: "1", width: self.frame.width/8, height: self.frame.width/8, anchorPoint: CGPoint(x:0.5,y:0.5), position: CGPoint(x:self.frame.width/2,y:self.frame.height/2), zPosition: 4, alpha: 0)
         loading.name = "loading"
         let animate = SKAction.animate(with: [SKTexture(imageNamed: "1"),SKTexture(imageNamed: "2"),SKTexture(imageNamed: "3"),SKTexture(imageNamed: "4"),SKTexture(imageNamed: "5"),SKTexture(imageNamed: "6"),SKTexture(imageNamed: "7"),SKTexture(imageNamed: "8")], timePerFrame: 0.06)
         let rep = SKAction.repeatForever(animate)
@@ -323,7 +323,7 @@ class PlayScene: SKScene {
                         timer = Timer.scheduledTimer(timeInterval: 0.02, target: self, selector: #selector(self.perceptronIterate), userInfo: nil, repeats: true)
                     }
                     
-                    if sprite.name == "test" && !isTraining && !isDecisionBoundaryUp && !isThinking && trainingPoints.count > 0 && placedPatterns.count > 1{
+                    if sprite.name == "test" && !isTraining && !isDecisionBoundaryUp && !isThinking && trainingPoints.count > 0 && placedPatterns.count > 1 && finishedTraining{
                         if !isTesting{
                             isTesting = true
                             testingLabel.fontColor = ThemeColor.darkPurple
