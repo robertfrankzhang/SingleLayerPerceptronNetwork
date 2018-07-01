@@ -44,6 +44,7 @@ class PlayScene: SKScene {
     var testingLabel = SKLabelNode()
     var isTestingLabelUp = false
     var playButton = SKSpriteNode()
+    var loading = SKSpriteNode()
     
     override func didMove(to view: SKView) {
         //Set Display Items
@@ -75,8 +76,11 @@ class PlayScene: SKScene {
         self.view?.addGestureRecognizer(swipeRightGesture)
         self.addChild(targetBlank)
         
-        let loading = SKSpriteNode(imageName: "1", width: self.frame.width/8, height: self.frame.width/8, anchorPoint: CGPoint(x:0.5,y:0.5), position: CGPoint(x:self.frame.width/2,y:self.frame.height/2), zPosition: 4, alpha: 0)
+        loading = SKSpriteNode(imageName: "1", width: self.frame.width/8, height: self.frame.width/8, anchorPoint: CGPoint(x:0.5,y:0.5), position: CGPoint(x:self.frame.width/2,y:self.frame.height/2), zPosition: 4, alpha: 1)
         loading.name = "loading"
+        let animate = SKAction.animate(with: [SKTexture(imageNamed: "1"),SKTexture(imageNamed: "2"),SKTexture(imageNamed: "3"),SKTexture(imageNamed: "4"),SKTexture(imageNamed: "5"),SKTexture(imageNamed: "6"),SKTexture(imageNamed: "7"),SKTexture(imageNamed: "8")], timePerFrame: 0.06)
+        let rep = SKAction.repeatForever(animate)
+        loading.run(rep)
         self.addChild(loading)
         
         //Bottom Bar Items
@@ -107,6 +111,7 @@ class PlayScene: SKScene {
         
         //Network Animation
         networkAnimation = NetworkAnimation(myScene: self, position: CGPoint(x:self.frame.width,y:self.frame.width/8+40), weights: weights, biases: biases)
+        networkAnimation.update(weights: weights, biases: biases)
         self.addChild(networkAnimation)
     }
     
@@ -298,6 +303,8 @@ class PlayScene: SKScene {
                         isTesting = false
                         testingLabel.fontColor = .lightGray
                         testingLabel.text = "Test: OFF"
+                        (weights,biases) = NeuralNet.setDefaultWeightsAndBiases(numInputs: 2, numOutputs: 7)
+                        networkAnimation.update(weights: weights, biases: biases)
                     }
                     
                     if sprite.name == "play" && !isTraining && !isDecisionBoundaryUp && !isThinking && trainingPoints.count > 0 && placedPatterns.count > 1 && !finishedTraining{
@@ -377,22 +384,14 @@ class PlayScene: SKScene {
                     }
                     
                     if sprite.name == "trainingSpace" && !isTesting{
-                        print("training")
                         for p in patternsBar.patterns{
                             if p.isToggled && !isDecisionBoundaryUp && !isThinking && !isTraining{
                                 let point = TrainingPoint(position: touch.location(in: self), pattern: p, myScene: self)
                                 point.name = "point"
                                 isThinking = true
                                 
-                                for s in self.children{
-                                    if s.name == "loading"{
-                                        s.alpha = 1
-                                        
-                                        let animate = SKAction.animate(with: [SKTexture(imageNamed: "1"),SKTexture(imageNamed: "2"),SKTexture(imageNamed: "3"),SKTexture(imageNamed: "4"),SKTexture(imageNamed: "5"),SKTexture(imageNamed: "6"),SKTexture(imageNamed: "7"),SKTexture(imageNamed: "8")], timePerFrame: 0.01)
-                                        let rep = SKAction.repeatForever(animate)
-                                        s.run(rep)
-                                    }
-                                }
+                                loading.alpha = 1
+                                print("LAODAK")
                                 
                                 if let boundaryCountDelta = NeuralNet.addTrainingPoint(point:point,placedPatterns: placedPatterns,numDecisionBoundaries:numDecisionBoundaries,trainingPoints:trainingPoints,patternBar:patternsBar,weights:weights,biases:biases){
                                     numDecisionBoundaries+=boundaryCountDelta
@@ -400,12 +399,8 @@ class PlayScene: SKScene {
                                     print(boundaryCountDelta)
                                     
                                     isThinking = false
-                                    for s in self.children{
-                                        if s.name == "loading"{
-                                            s.alpha = 0
-                                            s.removeAllActions()
-                                        }
-                                    }
+                                    loading.alpha = 0
+                                    print("REMOVESA")
                                     
                                     trainingPoints.append(point)
                                     self.addChild(point)
@@ -436,12 +431,9 @@ class PlayScene: SKScene {
                                     //Nonlinearizable
                                     print("Nonlinearizable")
                                     isThinking = false
-                                    for s in self.children{
-                                        if s.name == "loading"{
-                                            s.alpha = 0
-                                            s.removeAllActions()
-                                        }
-                                    }
+                                    
+                                    loading.alpha = 0
+                                    
                                     for s in self.children{
                                         if s.name == "nonLinear"{
                                             isDecisionBoundaryUp = true

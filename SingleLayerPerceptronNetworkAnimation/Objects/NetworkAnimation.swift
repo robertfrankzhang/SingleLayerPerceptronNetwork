@@ -71,7 +71,6 @@ class NetworkAnimation:SKSpriteNode{
                 shape.zPosition = 1
                 self.addChild(shape)
                 weightRow.append(shape)
-                print("going")
                 
             }
             myWeights.append(weightRow)
