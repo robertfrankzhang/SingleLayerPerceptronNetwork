@@ -302,6 +302,7 @@ class PlayScene: SKScene {
                         numDecisionBoundaries = 0
                         testingLabel.alpha = 0
                         isTesting = false
+                        playButton.alpha = 1
                         testingLabel.fontColor = .lightGray
                         testingLabel.text = "Test: OFF"
                         (weights,biases) = NeuralNet.setDefaultWeightsAndBiases(numInputs: 2, numOutputs: 7)

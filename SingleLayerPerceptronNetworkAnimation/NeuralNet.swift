@@ -181,8 +181,8 @@ class NeuralNet{
             let numPossibilities1 = Int(truncating: pow(2,numDecisionBoundaries) as NSDecimalNumber)
             for decimalTry in 0..<numPossibilities1{
                 let outputVector = decimalToOutputVector(num: decimalTry, vectorLength: patternBar.patterns.count-1)
-                patternBar.patterns[findPatternIndex(patternType: point.patternType, patterns: patternBar.patterns)].outputVector = outputVector
-                if allUnique(patterns: patternBar.patterns){//If output vector isn't in the placed vectors
+                if !doesArrayOfArraysContainArray(bigArray: patternTypesToPatterns(patternTypes: placedPatterns, patterns: patternBar.patterns),array: outputVector){//If output vector isn't in the placed vectors
+                    patternBar.patterns[findPatternIndex(patternType: point.patternType, patterns: patternBar.patterns)].outputVector = outputVector
                     if let (_,_) = train(points:trainingPoints+[point],patternBar: patternBar.patterns,weights: weights,biases: biases){
                         print("notUsedBefore and no new bounds")
                         return 0
@@ -200,16 +200,15 @@ class NeuralNet{
                 for pattern in placedPatterns{
                     placedPatternVectors.append(patternTypeToPattern(patternType: pattern, patterns: patternBar.patterns))
                 }
-                var counter=0
+                
                 
                 for i in 0..<placedPatternVectors.count{
-                    placedPatternVectors[i][numDecisionBoundaries] = endVector[counter]
+                    placedPatternVectors[i][numDecisionBoundaries] = endVector[i]
                     let somePattern = outVectorToPattern(vector: placedPatternVectors[i], patterns: patternBar.patterns, numBoundaries: numDecisionBoundaries)!
                     patternBar.patterns[findPatternIndex(patternType: somePattern.name, patterns: patternBar.patterns)].outputVector = placedPatternVectors[i]
-                    counter+=1
                 }
                 
-                if allUnique(patterns: patternBar.patterns){
+                if allUnique(patterns: placedPatternVectors){
                     if let (_,_) = train(points:trainingPoints+[point],patternBar: patternBar.patterns,weights: weights,biases: biases){
                         print("usedBefore and has new bounds")
                         return 1
@@ -243,6 +242,10 @@ class NeuralNet{
             for decimalTryNewPattern in 0..<numPossibilitiesPlus{
                 for decimalTryEndPatterns in 0..<endPossibilities{
                     let outputVector = decimalToOutputVector(num: decimalTryNewPattern, vectorLength: patternBar.patterns.count-1)
+                    print("HHHHH")
+                    print(placedPatterns)
+                    print(outputVector)
+                    print("HHHHH")
                     if !doesArrayOfArraysContainArray(bigArray: patternTypesToPatterns(patternTypes: placedPatterns, patterns: patternBar.patterns),array: outputVector){
                         patternBar.patterns[findPatternIndex(patternType: point.patternType, patterns: patternBar.patterns)].outputVector = outputVector
                         
@@ -251,7 +254,6 @@ class NeuralNet{
                         for pattern in placedPatterns{
                             placedPatternVectors.append(patternTypeToPattern(patternType: pattern, patterns: patternBar.patterns))
                         }
-                        var counter=0
                         
                         //Copy Placed Pattern Vectors
                         var placedPatternVectorsCopy:[[Int]] = []
@@ -265,7 +267,7 @@ class NeuralNet{
                         
                         //Modify Placed Pattern Vectors Copy
                         for i in 0..<placedPatternVectors.count{
-                            placedPatternVectorsCopy[i][numDecisionBoundaries] = endVector[counter]
+                            placedPatternVectorsCopy[i][numDecisionBoundaries] = endVector[i]
                         }
                         
                         //Check if new endings for placed pattern vectors = new output vector
@@ -279,14 +281,11 @@ class NeuralNet{
                         //Only if all placed pattern vectors are unique, test
                         if isValid{
                             for i in 0..<placedPatternVectors.count{
-                                placedPatternVectors[i][numDecisionBoundaries] = endVector[counter]
+                                placedPatternVectors[i][numDecisionBoundaries] = endVector[i]
                                 let somePattern = outVectorToPattern(vector: placedPatternVectors[i], patterns: patternBar.patterns, numBoundaries: numDecisionBoundaries)!
                                 patternBar.patterns[findPatternIndex(patternType: somePattern.name, patterns: patternBar.patterns)].outputVector = placedPatternVectors[i]
-                                counter+=1
                             }
-                            for pp in patternBar.patterns{
-                                print(pp.outputVector)
-                            }
+                            patternBar.patterns[findPatternIndex(patternType: point.patternType, patterns: patternBar.patterns)].outputVector = outputVector
                             
                             if let (_,_) = train(points:trainingPoints+[point],patternBar: patternBar.patterns,weights: weights,biases: biases){
                                 print("notUsedBefore and has new bounds")
@@ -412,13 +411,13 @@ class NeuralNet{
         return s
     }
     
-    static func allUnique(patterns:[Pattern])->Bool{
+    static func allUnique(patterns:[[Int]])->Bool{
         var containArray:[String] = []
         for p in patterns{
-            if containArray.contains(arrayToString(a: p.outputVector)) && p.outputVector != [0,0,0,0,0,0,0]{
+            if containArray.contains(arrayToString(a: p)){
                 return false
             }else{
-                containArray.append(arrayToString(a: p.outputVector))
+                containArray.append(arrayToString(a: p))
             }
         }
         return true
