@@ -156,7 +156,6 @@ class NeuralNet{
             if counterLoop == upperBound{
                 returnNil = true
             }
-           print(counterLoop)
         }
         if returnNil{
             return nil
@@ -168,8 +167,7 @@ class NeuralNet{
     
     static func addTrainingPoint(point:TrainingPoint,placedPatterns:[String],numDecisionBoundaries:Int,trainingPoints:[TrainingPoint],patternBar:PatternsBar,weights:[[CGFloat]],biases:[CGFloat])->Int?{//return nil if nonlinearizable, else return #decisionBoundaries after adding point
         
-        var allPatterns:[Pattern] = copy(a: patternBar.patterns)
-        print("begin")
+        let allPatterns:[Pattern] = copy(a: patternBar.patterns)
         
         if wasPatternBeenUsedBefore(point: point, placedPatterns: placedPatterns){//If old Pattern
             //First see if already used vectors work
@@ -195,11 +193,13 @@ class NeuralNet{
                     counter+=1
                 }
                 
-                if let (_,_) = train(points:trainingPoints+[point],patternBar: patternBar.patterns,weights: weights,biases: biases){
-                    print("usedBefore and has new bounds")
-                    return 1
-                }else{
-                    patternBar.patterns = copy(a:allPatterns)
+                if allUnique(patterns: patternBar.patterns){
+                    if let (_,_) = train(points:trainingPoints+[point],patternBar: patternBar.patterns,weights: weights,biases: biases){
+                        print("usedBefore and has new bounds")
+                        return 1
+                    }else{
+                        patternBar.patterns = copy(a:allPatterns)
+                    }
                 }
             }
             return nil
@@ -210,7 +210,6 @@ class NeuralNet{
             for decimalTry in 0..<numPossibilities{
                 let outputVector = decimalToOutputVector(num: decimalTry, vectorLength: patternBar.patterns.count-1)
                 if !doesArrayOfArraysContainArray(bigArray: patternTypesToPatterns(patternTypes: placedPatterns, patterns: patternBar.patterns),array: outputVector){//If output vector isn't in the placed vectors
-                    print(outputVector)
                     patternBar.patterns[findPatternIndex(patternType: point.patternType, patterns: patternBar.patterns)].outputVector = outputVector
                     if let (_,_) = train(points:trainingPoints+[point],patternBar: patternBar.patterns,weights: weights,biases: biases){
                         print("notUsedBefore and no new bounds")
@@ -229,10 +228,6 @@ class NeuralNet{
                 for decimalTryEndPatterns in 0..<endPossibilities{
                     let outputVector = decimalToOutputVector(num: decimalTryNewPattern, vectorLength: patternBar.patterns.count-1)
                     if !doesArrayOfArraysContainArray(bigArray: patternTypesToPatterns(patternTypes: placedPatterns, patterns: patternBar.patterns),array: outputVector){
-                        print("Output:")
-                        print(outputVector)
-                        print(patternTypesToPatterns(patternTypes: placedPatterns, patterns: patternBar.patterns))
-                        
                         patternBar.patterns[findPatternIndex(patternType: point.patternType, patterns: patternBar.patterns)].outputVector = outputVector
                         
                         let endVector = decimalToOutputVector(num: decimalTryEndPatterns, vectorLength: placedPatterns.count)
@@ -273,7 +268,6 @@ class NeuralNet{
                                 patternBar.patterns[findPatternIndex(patternType: somePattern.name, patterns: patternBar.patterns)].outputVector = placedPatternVectors[i]
                                 counter+=1
                             }
-                            print("Right After")
                             for pp in patternBar.patterns{
                                 print(pp.outputVector)
                             }
@@ -392,6 +386,26 @@ class NeuralNet{
             }
         }
         return hasBeenPlaced
+    }
+    
+    static func arrayToString(a:[Int])->String{
+        var s = ""
+        for e in a{
+            s+=String(e)
+        }
+        return s
+    }
+    
+    static func allUnique(patterns:[Pattern])->Bool{
+        var containArray:[String] = []
+        for p in patterns{
+            if containArray.contains(arrayToString(a: p.outputVector)){
+                return false
+            }else{
+                containArray.append(arrayToString(a: p.outputVector))
+            }
+        }
+        return true
     }
     
     

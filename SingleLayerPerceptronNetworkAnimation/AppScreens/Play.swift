@@ -391,16 +391,15 @@ class PlayScene: SKScene {
                                 isThinking = true
                                 
                                 loading.alpha = 1
-                                print("LAODAK")
+                                
                                 
                                 if let boundaryCountDelta = NeuralNet.addTrainingPoint(point:point,placedPatterns: placedPatterns,numDecisionBoundaries:numDecisionBoundaries,trainingPoints:trainingPoints,patternBar:patternsBar,weights:weights,biases:biases){
                                     numDecisionBoundaries+=boundaryCountDelta
                                     print("Bounds: "+String(numDecisionBoundaries))
-                                    print(boundaryCountDelta)
                                     
                                     isThinking = false
                                     loading.alpha = 0
-                                    print("REMOVESA")
+                                    
                                     
                                     trainingPoints.append(point)
                                     self.addChild(point)
@@ -424,12 +423,10 @@ class PlayScene: SKScene {
                                     
                                     if !hasBeenPlaced{//Add new pattern if pattern hasn't been placed before
                                         placedPatterns.append(p.name)
-                                        print(placedPatterns)
                                     }
                                     (weights,biases) = NeuralNet.train(points: trainingPoints, patternBar: patternsBar.patterns, weights: weights, biases: biases)!
                                 }else{
                                     //Nonlinearizable
-                                    print("Nonlinearizable")
                                     isThinking = false
                                     
                                     loading.alpha = 0
@@ -449,8 +446,6 @@ class PlayScene: SKScene {
                                     }
                                     
                                 }
-                                print(weights)
-                                print(biases)
                             }
                         }
                     }
