@@ -171,9 +171,25 @@ class NeuralNet{
         
         if wasPatternBeenUsedBefore(point: point, placedPatterns: placedPatterns){//If old Pattern
             //First see if already used vectors work
+            print("old")
             if let (_,_) = train(points: trainingPoints+[point], patternBar: patternBar.patterns,weights: weights,biases: biases){
                 print("usedBefore and no new bounds")
                 return 0
+            }
+            
+            //If not, and no new decision boundaries, change current pattern's output vector
+            let numPossibilities1 = Int(truncating: pow(2,numDecisionBoundaries) as NSDecimalNumber)
+            for decimalTry in 0..<numPossibilities1{
+                let outputVector = decimalToOutputVector(num: decimalTry, vectorLength: patternBar.patterns.count-1)
+                patternBar.patterns[findPatternIndex(patternType: point.patternType, patterns: patternBar.patterns)].outputVector = outputVector
+                if allUnique(patterns: patternBar.patterns){//If output vector isn't in the placed vectors
+                    if let (_,_) = train(points:trainingPoints+[point],patternBar: patternBar.patterns,weights: weights,biases: biases){
+                        print("notUsedBefore and no new bounds")
+                        return 0
+                    }else{
+                        patternBar.patterns = copy(a:allPatterns)
+                    }
+                }
             }
             
             //If not, add decision boundaries iterate through all end values
@@ -399,7 +415,7 @@ class NeuralNet{
     static func allUnique(patterns:[Pattern])->Bool{
         var containArray:[String] = []
         for p in patterns{
-            if containArray.contains(arrayToString(a: p.outputVector)){
+            if containArray.contains(arrayToString(a: p.outputVector)) && p.outputVector != [0,0,0,0,0,0,0]{
                 return false
             }else{
                 containArray.append(arrayToString(a: p.outputVector))

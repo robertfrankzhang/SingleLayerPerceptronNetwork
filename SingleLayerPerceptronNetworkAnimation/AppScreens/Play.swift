@@ -299,6 +299,7 @@ class PlayScene: SKScene {
                         }
                         isFirstTimeRunningSet = true
                         decisionBoundaries = []
+                        numDecisionBoundaries = 0
                         testingLabel.alpha = 0
                         isTesting = false
                         testingLabel.fontColor = .lightGray
@@ -413,6 +414,7 @@ class PlayScene: SKScene {
                                     for pp in patternsBar.patterns{
                                         print(pp.outputVector)
                                     }
+                                    print()
                                     
                                     var hasBeenPlaced = false
                                     for p in placedPatterns{//Check if p was in placed patterns
