@@ -6,11 +6,6 @@
 //  Copyright © 2018 RZ. All rights reserved.
 //
 
-/*
- Task to complete before publishing:
- -When calculating point, make a loading spinning node appear
- */
-
 import SpriteKit
 import GameplayKit
 

@@ -44,7 +44,7 @@ class PlayScene: SKScene {
     var testingLabel = SKLabelNode()
     var isTestingLabelUp = false
     var playButton = SKSpriteNode()
-    var loading = SKSpriteNode()
+    var loading = SKLabelNode()
     
     override func didMove(to view: SKView) {
         //Set Display Items
@@ -76,11 +76,9 @@ class PlayScene: SKScene {
         self.view?.addGestureRecognizer(swipeRightGesture)
         self.addChild(targetBlank)
         
-        loading = SKSpriteNode(imageName: "1", width: self.frame.width/8, height: self.frame.width/8, anchorPoint: CGPoint(x:0.5,y:0.5), position: CGPoint(x:self.frame.width/2,y:self.frame.height/2), zPosition: 4, alpha: 0)
+        loading = SKLabelNode(position: CGPoint(x:self.frame.width/2,y:self.frame.height/2), zPosition: 4, text: "Thinking...", fontColor: ThemeColor.darkPurple, fontName: "Antipasto Pro", fontSize: 15, verticalAlignmentMode: .center, horizontalAlignmentMode: .center)
+        loading.alpha = 0
         loading.name = "loading"
-        let animate = SKAction.animate(with: [SKTexture(imageNamed: "1"),SKTexture(imageNamed: "2"),SKTexture(imageNamed: "3"),SKTexture(imageNamed: "4"),SKTexture(imageNamed: "5"),SKTexture(imageNamed: "6"),SKTexture(imageNamed: "7"),SKTexture(imageNamed: "8")], timePerFrame: 0.06)
-        let rep = SKAction.repeatForever(animate)
-        loading.run(rep)
         self.addChild(loading)
         
         //Bottom Bar Items
@@ -390,65 +388,72 @@ class PlayScene: SKScene {
                             if p.isToggled && !isDecisionBoundaryUp && !isThinking && !isTraining{
                                 let point = TrainingPoint(position: touch.location(in: self), pattern: p, myScene: self)
                                 point.name = "point"
-                                isThinking = true
                                 
-                                loading.alpha = 1
-                                
-                                
-                                if let boundaryCountDelta = NeuralNet.addTrainingPoint(point:point,placedPatterns: placedPatterns,numDecisionBoundaries:numDecisionBoundaries,trainingPoints:trainingPoints,patternBar:patternsBar,weights:weights,biases:biases){
-                                    numDecisionBoundaries+=boundaryCountDelta
-                                    print("Bounds: "+String(numDecisionBoundaries))
-                                    
-                                    isThinking = false
-                                    loading.alpha = 0
-                                    
-                                    
-                                    trainingPoints.append(point)
-                                    self.addChild(point)
-                                    
-                                    isTesting = false
-                                    testingLabel.fontColor = .lightGray
-                                    testingLabel.text = "Test: OFF"
-                                    finishedTraining = false
-                                    playButton.alpha = 1
-                                    
-                                    for pp in patternsBar.patterns{
-                                        print(pp.outputVector)
-                                    }
-                                    print()
-                                    
-                                    var hasBeenPlaced = false
-                                    for p in placedPatterns{//Check if p was in placed patterns
-                                        if p == point.patternType{
-                                            hasBeenPlaced = true
-                                        }
-                                    }
-                                    
-                                    if !hasBeenPlaced{//Add new pattern if pattern hasn't been placed before
-                                        placedPatterns.append(p.name)
-                                    }
-                                    (weights,biases) = NeuralNet.train(points: trainingPoints, patternBar: patternsBar.patterns, weights: weights, biases: biases)!
-                                }else{
-                                    //Nonlinearizable
-                                    isThinking = false
-                                    
-                                    loading.alpha = 0
-                                    
-                                    for s in self.children{
-                                        if s.name == "nonLinear"{
-                                            isDecisionBoundaryUp = true
-                                            let moveUp = SKAction.moveTo(y: self.frame.height/2, duration: 0.2)
-                                            let wait = SKAction.wait(forDuration: 1.3)
-                                            let moveDown = SKAction.moveTo(y: -1000, duration: 0.2)
-                                            let toggle = SKAction.run({
-                                                self.isDecisionBoundaryUp = false
-                                            })
-                                            let seq = SKAction.sequence([moveUp,wait,moveDown,toggle])
-                                            s.run(seq)
-                                        }
-                                    }
-                                    
+                                let loadingOnAction = SKAction.run {
+                                    self.isThinking = true
+                                    self.loading.alpha = 1
                                 }
+                                
+                                let thinkingAction = SKAction.run {
+                                    if let boundaryCountDelta = NeuralNet.addTrainingPoint(point:point,placedPatterns: self.placedPatterns,numDecisionBoundaries:self.numDecisionBoundaries,trainingPoints:self.trainingPoints,patternBar:self.patternsBar,weights:self.weights,biases:self.biases){
+                                        self.numDecisionBoundaries+=boundaryCountDelta
+                                        print("Bounds: "+String(self.numDecisionBoundaries))
+                                        
+                                        self.isThinking = false
+                                        self.loading.alpha = 0
+                                        
+                                        
+                                        self.trainingPoints.append(point)
+                                        self.addChild(point)
+                                        
+                                        self.isTesting = false
+                                        self.testingLabel.fontColor = .lightGray
+                                        self.testingLabel.text = "Test: OFF"
+                                        self.finishedTraining = false
+                                        self.playButton.alpha = 1
+                                        
+                                        for pp in self.patternsBar.patterns{
+                                            print(pp.outputVector)
+                                        }
+                                        print()
+                                        
+                                        var hasBeenPlaced = false
+                                        for p in self.placedPatterns{//Check if p was in placed patterns
+                                            if p == point.patternType{
+                                                hasBeenPlaced = true
+                                            }
+                                        }
+                                        
+                                        if !hasBeenPlaced{//Add new pattern if pattern hasn't been placed before
+                                            self.placedPatterns.append(p.name)
+                                        }
+                                        (self.weights,self.biases) = NeuralNet.train(points: self.trainingPoints, patternBar: self.patternsBar.patterns, weights: self.weights, biases: self.biases)!
+                                    }else{
+                                        //Nonlinearizable
+                                        self.isThinking = false
+                                        
+                                        self.loading.alpha = 0
+                                        
+                                        for s in self.children{
+                                            if s.name == "nonLinear"{
+                                                self.isDecisionBoundaryUp = true
+                                                let moveUp = SKAction.moveTo(y: self.frame.height/2, duration: 0.2)
+                                                let wait = SKAction.wait(forDuration: 1.3)
+                                                let moveDown = SKAction.moveTo(y: -1000, duration: 0.2)
+                                                let toggle = SKAction.run({
+                                                    self.isDecisionBoundaryUp = false
+                                                })
+                                                let seq = SKAction.sequence([moveUp,wait,moveDown,toggle])
+                                                s.run(seq)
+                                            }
+                                        }
+                                        
+                                    }
+                                }
+                                
+                                let seq = SKAction.sequence([loadingOnAction,thinkingAction])
+                                self.run(seq)
+                                
                             }
                         }
                     }
