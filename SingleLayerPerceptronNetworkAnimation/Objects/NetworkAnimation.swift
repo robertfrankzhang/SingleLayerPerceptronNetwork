@@ -47,10 +47,6 @@ class NetworkAnimation:SKSpriteNode{
         }
         
         //Weights
-        print("WEIGHTS:")
-        print(weights)
-        print(weights.count)
-        print(weights[0].count)
         for weightRowIndex in 0..<weights.count{
             var weightRow:[SKShapeNode] = []
             for weightIndex in 0..<weights[weightRowIndex].count{

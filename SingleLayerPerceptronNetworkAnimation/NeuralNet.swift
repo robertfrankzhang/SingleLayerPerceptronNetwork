@@ -171,9 +171,7 @@ class NeuralNet{
         
         if wasPatternBeenUsedBefore(point: point, placedPatterns: placedPatterns){//If old Pattern
             //First see if already used vectors work
-            print("old")
             if let (_,_) = train(points: trainingPoints+[point], patternBar: patternBar.patterns,weights: weights,biases: biases){
-                print("usedBefore and no new bounds")
                 return 0
             }
             
@@ -184,7 +182,6 @@ class NeuralNet{
                 if !doesArrayOfArraysContainArray(bigArray: patternTypesToPatterns(patternTypes: placedPatterns, patterns: patternBar.patterns),array: outputVector){//If output vector isn't in the placed vectors
                     patternBar.patterns[findPatternIndex(patternType: point.patternType, patterns: patternBar.patterns)].outputVector = outputVector
                     if let (_,_) = train(points:trainingPoints+[point],patternBar: patternBar.patterns,weights: weights,biases: biases){
-                        print("notUsedBefore and no new bounds")
                         return 0
                     }else{
                         patternBar.patterns = copy(a:allPatterns)
@@ -210,7 +207,6 @@ class NeuralNet{
                 
                 if allUnique(patterns: placedPatternVectors){
                     if let (_,_) = train(points:trainingPoints+[point],patternBar: patternBar.patterns,weights: weights,biases: biases){
-                        print("usedBefore and has new bounds")
                         return 1
                     }else{
                         patternBar.patterns = copy(a:allPatterns)
@@ -227,7 +223,6 @@ class NeuralNet{
                 if !doesArrayOfArraysContainArray(bigArray: patternTypesToPatterns(patternTypes: placedPatterns, patterns: patternBar.patterns),array: outputVector){//If output vector isn't in the placed vectors
                     patternBar.patterns[findPatternIndex(patternType: point.patternType, patterns: patternBar.patterns)].outputVector = outputVector
                     if let (_,_) = train(points:trainingPoints+[point],patternBar: patternBar.patterns,weights: weights,biases: biases){
-                        print("notUsedBefore and no new bounds")
                         return 0
                     }else{
                         patternBar.patterns = copy(a:allPatterns)
@@ -242,10 +237,7 @@ class NeuralNet{
             for decimalTryNewPattern in 0..<numPossibilitiesPlus{
                 for decimalTryEndPatterns in 0..<endPossibilities{
                     let outputVector = decimalToOutputVector(num: decimalTryNewPattern, vectorLength: patternBar.patterns.count-1)
-                    print("HHHHH")
-                    print(placedPatterns)
-                    print(outputVector)
-                    print("HHHHH")
+                    
                     if !doesArrayOfArraysContainArray(bigArray: patternTypesToPatterns(patternTypes: placedPatterns, patterns: patternBar.patterns),array: outputVector){
                         patternBar.patterns[findPatternIndex(patternType: point.patternType, patterns: patternBar.patterns)].outputVector = outputVector
                         
@@ -288,7 +280,6 @@ class NeuralNet{
                             patternBar.patterns[findPatternIndex(patternType: point.patternType, patterns: patternBar.patterns)].outputVector = outputVector
                             
                             if let (_,_) = train(points:trainingPoints+[point],patternBar: patternBar.patterns,weights: weights,biases: biases){
-                                print("notUsedBefore and has new bounds")
                                 return 1
                             }else{
                                 patternBar.patterns = copy(a:allPatterns)

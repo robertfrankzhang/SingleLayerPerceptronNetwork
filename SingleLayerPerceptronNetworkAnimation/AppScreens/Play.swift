@@ -397,7 +397,7 @@ class PlayScene: SKScene {
                                 let thinkingAction = SKAction.run {
                                     if let boundaryCountDelta = NeuralNet.addTrainingPoint(point:point,placedPatterns: self.placedPatterns,numDecisionBoundaries:self.numDecisionBoundaries,trainingPoints:self.trainingPoints,patternBar:self.patternsBar,weights:self.weights,biases:self.biases){
                                         self.numDecisionBoundaries+=boundaryCountDelta
-                                        print("Bounds: "+String(self.numDecisionBoundaries))
+                                        
                                         
                                         self.isThinking = false
                                         self.loading.alpha = 0
@@ -411,11 +411,6 @@ class PlayScene: SKScene {
                                         self.testingLabel.text = "Test: OFF"
                                         self.finishedTraining = false
                                         self.playButton.alpha = 1
-                                        
-                                        for pp in self.patternsBar.patterns{
-                                            print(pp.outputVector)
-                                        }
-                                        print()
                                         
                                         var hasBeenPlaced = false
                                         for p in self.placedPatterns{//Check if p was in placed patterns
